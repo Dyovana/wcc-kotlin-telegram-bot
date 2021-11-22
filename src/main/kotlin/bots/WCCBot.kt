@@ -1,8 +1,7 @@
 package bots
 
-import com.vdurmont.emoji.EmojiParser
+//import com.vdurmont.emoji.EmojiParser
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
-import org.telegram.telegrambots.meta.api.methods.send.SendAudio
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 
@@ -14,14 +13,7 @@ import java.io.File
 
 
 class WCCBot : TelegramLongPollingBot() {
-//    val welcome = """
-//        *Olá, tudo bem\?*
-//
-//        \/start \- começar projeto
-//        \/music \-Escutar uma musica
-//        \/info \- para saber mais sobre o projeto
-//        \/seilá\- blabla
-//    """.trimMargin()
+
 
     override fun getBotUsername(): String {
         //return bot username
@@ -41,169 +33,138 @@ class WCCBot : TelegramLongPollingBot() {
         val messageCommand = update?.message?.text
 
         try {
-            if( messageCommand == "/musica"){
-            val gif = SendDocument().apply{
-                val file = File("src/main/resources/gatinho-gato.gif")
+            if( messageCommand == "/start"){
+            val start = SendMessage().apply{
                 this.chatId = chatId
-                this.document = InputFile().setMedia(file)
-                this.caption = EmojiParser.parseToUnicode("Por enquanto tenho essa rsrs :smile:")
+                this.text = welcome(nameSender)
                 this.parseMode = "MarkdownV2"
             }
-            val sendMusic = SendAudio().apply{
-                val file = File("src/main/resources/music/dancing.mp3")
-                this.chatId = chatId
-                this.audio = InputFile().setMedia(file)
-                this.parseMode = "MarkdownV2"
-            }
-            execute(gif)
-            execute(sendMusic)
-
-
-        }else if(messageCommand == "/info"){
-            val info = SendMessage().apply{
-                this.chatId = chatId
-                this.text = "Esse é um bot ainda simples, mas criado com carinho :) Feito através do Projeto Woman Can Code 6ª edição e com a excelente facilitadora Ste Suzart"
-            }
-            execute(info)
+            execute(start)
         }
-        else if(messageCommand == "/foto"){
-            val foto = SendDocument().apply{
-                val file = File("src/main/resources/gatofofo.jpg")
-                this.chatId = chatId
-                this.document = InputFile().setMedia(file)
-            }
-            execute(foto)
-        }
-
-        else if(messageCommand == "/academia") {
-                val academia = SendMessage().apply {
-                    this.chatId = chatId
-                    this.text = comandosAcademia()
-                }
-                execute(academia)
-            }
-        else if(messageCommand == "/superior") {
-                val superior = SendDocument().apply {
-                    val file = File("src/main/resources/superior/superiror.gif")
-                    this.chatId = chatId
-                    this.document = InputFile().setMedia(file)
-                    this.caption = repeticoes()
-                }
-
-                val superior2 = SendDocument().apply {
-                    val file = File("src/main/resources/superior/superior2.gif")
-                    this.chatId = chatId
-                    this.document = InputFile().setMedia(file)
-                    this.caption = repeticoes()
-                }
-                val superior3 = SendDocument().apply {
-                    val file = File("src/main/resources/superior/superior3.gif")
-                    this.chatId = chatId
-                    this.document = InputFile().setMedia(file)
-                    this.caption = repeticoes()
-                }
-                execute(superior)
-                execute(superior2)
-                execute(superior3)
-
-            }
-            else if(messageCommand == "/abdomen") {
-                val abdomen = SendDocument().apply {
-                    val file = File("src/main/resources/abdomen/abdomen1.gif")
-                    this.chatId = chatId
-                    this.document = InputFile().setMedia(file)
-                    this.caption = repeticoes()
-                }
-
-                val abdomen2 = SendDocument().apply {
-                    val file = File("src/main/resources/abdomen/abdomen2.gif")
-                    this.chatId = chatId
-                    this.document = InputFile().setMedia(file)
-                    this.caption = repeticoes()
-                }
-                val abdomen3 = SendDocument().apply {
-                    val file = File("src/main/resources/abdomen/abdomen3.gif")
-                    this.chatId = chatId
-                    this.document = InputFile().setMedia(file)
-                    this.caption = repeticoes()
-                }
-                execute(abdomen)
-                execute(abdomen2)
-                execute(abdomen3)
-
-            }
-            else if(messageCommand == "/inferior") {
-                val inferior = SendDocument().apply {
-                    val file = File("src/main/resources/inferior/agachamento.gif")
-                    this.chatId = chatId
-                    this.document = InputFile().setMedia(file)
-                    this.caption = repeticoes()
-                }
-
-                val inferior2 = SendDocument().apply {
-                    val file = File("src/main/resources/inferior/levantamentoLateral.gif")
-                    this.chatId = chatId
-                    this.document = InputFile().setMedia(file)
-                    this.caption = repeticoes()
-                }
-                val inferior3 = SendDocument().apply {
-                    val file = File("src/main/resources/inferior/passada.gif")
-                    this.chatId = chatId
-                    this.document = InputFile().setMedia(file)
-                    this.caption = repeticoes()
-                }
-                execute(inferior)
-                execute(inferior2)
-                execute(inferior3)
-
-            }
         else {
-            val sendDocument = SendDocument().apply {
-                this.chatId = chatId
-                this.caption = getMessage(messageCommand, nameSender)
-                this.document = InputFile().setMedia(File("src/main/resources/nyan-cat.gif"))
-                this.parseMode = "MarkdownV2"
-            }
-        execute(sendDocument)
-        }
+            val sendDocument = sender(update)
+            execute(sendDocument)
 
+            }
         } catch (e: TelegramApiException) {
         e.printStackTrace()
         }
   }
-        private fun getMessage(command: String?, nameSender: String?) = when(command){
-            "/info" -> "Não há informações"
-            "/start" -> welcome(nameSender)
-            "/musica" -> "Escutar uma música"
-            else -> aprendendo()
-        }
+    private fun sender(update: Update?) = when(update?.message?.text){
+        "/academia" -> academia(update)
+        "/superior" -> treinoSuperior(update)
+        "/abdomen" -> treinoAbdomen(update)
+        "/inferior" -> treinoInferior(update)
+        "/info" -> info(update)
+        else -> defaultMessage(update)
+    }
 
     private fun welcome(nameSender: String?) = """
         *Olá, $nameSender, tudo bem\?*
         
-        \/start \- Começar/ver comandos
-        \/musica \- Escutar uma musica
-        \/foto\- Alguma foto fofa
         \/academia \- Academia virtual
         \/info \- Para saber mais sobre o projeto
     """.trimMargin()
 
-    private fun aprendendo(): String{
-        return EmojiParser.parseToUnicode("""
-            Não entendi
-            
-            Estou aprendendo ainda
-             
-            Vou reenviar os comandos 
-            que eu sei fazer :smile:
-            
-            \/music \-Escutar uma musica
-            \/fotofofa\- Foto fofa de gato
-            \/academia \- Academia vitual
-            \/info \- Para saber mais sobre o projeto
-            """.trimMargin())
+    private fun academia(update: Update?): SendDocument{
+        val academia = SendDocument().apply{
+            val file = File("src/main/resources/MulherFitness.gif")
+            this.chatId = update?.message?.chatId.toString()
+            this.document = InputFile().setMedia(file)
+            this.caption = comandosAcademia()
+        }
+        return academia
+    }
 
+    private fun treinoSuperior(update: Update?): SendDocument{
+        val superior1 = SendDocument().apply {
+            val file = File("src/main/resources/superior/superiror.gif")
+            this.chatId = update?.message?.chatId.toString()
+            this.document = InputFile().setMedia(file)
+            this.caption = repeticoes()
+        }
+        val superior2 = SendDocument().apply {
+            val file = File("src/main/resources/superior/superior2.gif")
+            this.chatId = update?.message?.chatId.toString()
+            this.document = InputFile().setMedia(file)
+            this.caption = repeticoes()
+        }
+        val superior3 = SendDocument().apply {
+            val file = File("src/main/resources/superior/superior3.gif")
+            this.chatId = update?.message?.chatId.toString()
+            this.document = InputFile().setMedia(file)
+            this.caption = repeticoes()
+        }
+        execute(superior1)
+        execute(superior2)
+        return superior3
+    }
 
+    private fun treinoAbdomen(update: Update?): SendDocument{
+        val abdomen = SendDocument().apply {
+            val file = File("src/main/resources/abdomen/abdomen1.gif")
+            this.chatId = update?.message?.chatId.toString()
+            this.document = InputFile().setMedia(file)
+            this.caption = repeticoes()
+        }
+
+        val abdomen2 = SendDocument().apply {
+            val file = File("src/main/resources/abdomen/abdomen2.gif")
+            this.chatId = update?.message?.chatId.toString()
+            this.document = InputFile().setMedia(file)
+            this.caption = repeticoes()
+        }
+        val abdomen3 = SendDocument().apply {
+            val file = File("src/main/resources/abdomen/abdomen3.gif")
+            this.chatId = update?.message?.chatId.toString()
+            this.document = InputFile().setMedia(file)
+            this.caption = repeticoes()
+        }
+        execute(abdomen)
+        execute(abdomen2)
+        return (abdomen3)
+    }
+
+    private fun treinoInferior(update: Update?): SendDocument{
+        val inferior = SendDocument().apply {
+            val file = File("src/main/resources/inferior/agachamento.gif")
+            this.chatId = update?.message?.chatId.toString()
+            this.document = InputFile().setMedia(file)
+            this.caption = repeticoes()
+        }
+
+        val inferior2 = SendDocument().apply {
+            val file = File("src/main/resources/inferior/levantamentoLateral.gif")
+            this.chatId = update?.message?.chatId.toString()
+            this.document = InputFile().setMedia(file)
+            this.caption = repeticoes()
+        }
+        val inferior3 = SendDocument().apply {
+            val file = File("src/main/resources/inferior/passada.gif")
+            this.chatId = update?.message?.chatId.toString()
+            this.document = InputFile().setMedia(file)
+            this.caption = repeticoes()
+        }
+        execute(inferior)
+        execute(inferior2)
+        return(inferior3)
+    }
+
+    private fun info(update: Update?): SendDocument{
+    val info = SendDocument().apply{
+        val file = File("src/main/resources/bot.gif")
+        this.chatId = update?.message?.chatId.toString()
+        this.document = InputFile().setMedia(file)
+        this.caption = """
+        Eu sou um bot ainda muito simples
+        
+        Por enquanto, faço apenas alguns comando, mas em breve farei mais!
+        
+        Sou um bot feito através do Projeto Woman Can Code, trilha Kotlin
+    """.trimIndent()
+
+    }
+    return(info)
     }
 
     private fun comandosAcademia(): String = """
@@ -227,7 +188,22 @@ class WCCBot : TelegramLongPollingBot() {
         Descanso de 3m entre os exercícios
     """.trimIndent()
 
-
+    private fun defaultMessage(update: Update?): SendDocument {
+        val sendDocument = SendDocument().apply {
+            val file = File("src/main/resources/nyan-cat.gif")
+            this.chatId = update?.message?.chatId.toString()
+            this.document = InputFile().setMedia(file)
+            this.caption = """
+                Não entendi...
+                
+                Utilize os comandos abaixo:
+                
+                /info
+                /academia
+            """.trimIndent()
+        }
+        return (sendDocument)
+    }
 
     }
 
